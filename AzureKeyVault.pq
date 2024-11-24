@@ -24,26 +24,49 @@ in
     NavTable;
 
 
-AzureKeyVault.Secret = (vaultBaseUrl as text, secretName as text) =>
-    let
-        Source = Json.Document(
-            Web.Contents(
-                vaultBaseUrl,
-                [
-                    RelativePath = "secrets/" & secretName & "/?api-version=" & apiVersion
-                ]
-            ),
-                65001)[value]
-    in
-        Source;
+AzureKeyVault.Secret = Value.ReplaceType(secret,secretype);
 
 
-shared AzureKeyVault.GetSecret = (vaultBaseUrl as text, secretName as text) =>
+
+    secret = (vaultBaseUrl as text, secretName as text) =>
+        let
+            Source = Json.Document(
+                Web.Contents(
+                    vaultBaseUrl,
+                    [
+                        RelativePath = "secrets/" & secretName & "/?api-version=" & apiVersion
+                    ]
+                ),
+                    65001)[value]
+        in
+            Source;
+
+
+shared AzureKeyVault.GetSecret = Value.ReplaceType(getSecret,secretype);
+
+    getSecret =  (vaultBaseUrl as text, secretName as text) =>
     let
         Source= AzureKeyVault.NavigationTable(vaultBaseUrl) {[Key="Secret"]}[Data](secretName)
     in
         Source;
-        
+
+secretype = type function (
+    vaultBaseUrl as (type text meta [
+        Documentation.FieldCaption = " vaultBaseUrl field caption ",
+        Documentation.FieldDescription = " vaultBaseUrl field description ",
+        Documentation.SampleValues = {"https://myvault.vault.azure.net/"},
+        Formatting.IsMultiLine = false,
+        Formatting.IsCode = false
+    ]),
+    secretName as (type number meta [
+        Documentation.FieldCaption = " secretName field caption ",
+        Documentation.FieldDescription = " secretName field description ",
+        Documentation.SampleValues = {"mysecret"},
+        Formatting.IsMultiLine = false,
+        Formatting.IsCode = false
+    ])
+) as list ;
+ 
 AzureKeyVault.TestConnection = (vaultBaseUrl as text) =>
     let
         Source = Json.Document(
