@@ -37,7 +37,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Azure_Key_Vault.pq">
+    <Compile Include="AzureKeyVault.pq">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Azure_Key_Vault16.png">
@@ -67,7 +67,7 @@
     <Compile Include="resources.resx">
       <SubType>Code</SubType>
     </Compile>
-    <Content Include="Azure_Key_Vault.query.pq">
+    <Content Include="AzureKeyVault.query.pq">
       <SubType>Code</SubType>
     </Content>
   </ItemGroup>

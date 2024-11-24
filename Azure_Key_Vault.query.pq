@@ -1,5 +1,0 @@
-﻿// Use this file to write queries to test your data connector
-let
-    result = Azure_Key_Vault.NavigationTable("https://bibbpbikeyvault.vault.azure.net/")
-in
-    result

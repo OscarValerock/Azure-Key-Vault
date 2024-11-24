@@ -1,10 +1,10 @@
 ﻿// This file contains your Data Connector logic
-section Azure_Key_Vault;
+[Version = "0.1.0"]
+section AzureKeyVault;
 apiVersion = "7.4";
 
-
-[DataSource.Kind="Azure_Key_Vault", Publish="Azure_Key_Vault.Publish"]
-shared Azure_Key_Vault.NavigationTable = (vaultBaseUrl as text) as table =>
+[DataSource.Kind="AzureKeyVault", Publish="AzureKeyVault.Publish"]
+shared AzureKeyVault.NavigationTable = (vaultBaseUrl as text) as table =>
 let
     objects = #table(
         {"Name", "Key", "Data", "ItemKind", "ItemName", "IsLeaf"},
@@ -12,7 +12,7 @@ let
             {
                 "Secret",
                 "Secret",
-                (secretName as text) => Azure_Key_Vault.Secret(vaultBaseUrl, secretName), 
+                (secretName as text) => AzureKeyVault.Secret(vaultBaseUrl, secretName), 
                 "Function",
                 "Secret",
                 true
@@ -24,7 +24,7 @@ in
     NavTable;
 
 
-Azure_Key_Vault.Secret = (vaultBaseUrl as text, secretName as text) =>
+AzureKeyVault.Secret = (vaultBaseUrl as text, secretName as text) =>
     let
         Source = Json.Document(
             Web.Contents(
@@ -38,13 +38,13 @@ Azure_Key_Vault.Secret = (vaultBaseUrl as text, secretName as text) =>
         Source;
 
 
-shared Azure_Key_Vault.GetSecret = (vaultBaseUrl as text, secretName as text) =>
+shared AzureKeyVault.GetSecret = (vaultBaseUrl as text, secretName as text) =>
     let
-        Source= Azure_Key_Vault.NavigationTable(vaultBaseUrl) {[Key="Secret"]}[Data](secretName)
+        Source= AzureKeyVault.NavigationTable(vaultBaseUrl) {[Key="Secret"]}[Data](secretName)
     in
         Source;
         
-Azure_Key_Vault.TestConnection = (vaultBaseUrl as text) =>
+AzureKeyVault.TestConnection = (vaultBaseUrl as text) =>
     let
         Source = Json.Document(
             Web.Contents(
@@ -58,8 +58,8 @@ Azure_Key_Vault.TestConnection = (vaultBaseUrl as text) =>
         Source;
 
 // Data Source Kind description
-Azure_Key_Vault = [
-    TestConnection = (dataSourcePath) => { "Azure_Key_Vault.TestConnection" },
+AzureKeyVault = [
+    TestConnection = (dataSourcePath) => { "AzureKeyVault.TestConnection" },
     Authentication = [
         Aad = [
             AuthorizationUri = "https://login.microsoftonline.com/common/oauth2/authorize",
@@ -70,16 +70,16 @@ Azure_Key_Vault = [
 ];
 
 // Data Source UI publishing description
-Azure_Key_Vault.Publish = [
+AzureKeyVault.Publish = [
     Beta = true,
     Category = "Other",
     ButtonText = { Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp") },
     LearnMoreUrl = "https://powerbi.microsoft.com/",
-    SourceImage = Azure_Key_Vault.Icons,
-    SourceTypeImage = Azure_Key_Vault.Icons
+    SourceImage = AzureKeyVault.Icons,
+    SourceTypeImage = AzureKeyVault.Icons
 ];
 
-Azure_Key_Vault.Icons = [
+AzureKeyVault.Icons = [
     Icon16 = { Extension.Contents("Azure_Key_Vault16.png"), Extension.Contents("Azure_Key_Vault20.png"), Extension.Contents("Azure_Key_Vault24.png"), Extension.Contents("Azure_Key_Vault32.png") },
     Icon32 = { Extension.Contents("Azure_Key_Vault32.png"), Extension.Contents("Azure_Key_Vault40.png"), Extension.Contents("Azure_Key_Vault48.png"), Extension.Contents("Azure_Key_Vault64.png") }
 ];

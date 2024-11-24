@@ -1,5 +1,5 @@
 {
     "powerquery.general.mode": "SDK",
     "powerquery.sdk.defaultExtension": "${workspaceFolder}\\bin\\AnyCPU\\Debug\\Power-BI-Azure-Key-Vault-Custom-connector.mez",
-    "powerquery.sdk.defaultQueryFile": "${workspaceFolder}\\Azure_Key_Vault.query.pq"
+    "powerquery.sdk.defaultQueryFile": "${workspaceFolder}\\AzureKeyVault.query.pq"
 }
