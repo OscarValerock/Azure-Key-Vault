@@ -1,5 +1,5 @@
 ﻿// Use this file to write queries to test your data connector
 let
-    result = Azure_Key_Vault.Secret("https://bibbpbikeyvault.vault.azure.net/","Gumroad")
+    result = Azure_Key_Vault.NavigationTable("https://bibbpbikeyvault.vault.azure.net/")
 in
     result
