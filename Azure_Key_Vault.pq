@@ -1,32 +1,24 @@
-﻿// This file contains your Data Connector logicf
+﻿// This file contains your Data Connector logic
 section Azure_Key_Vault;
-
+apiVersion = "7.4";
 
 [DataSource.Kind="Azure_Key_Vault", Publish="Azure_Key_Vault.Publish"]
-shared Azure_Key_Vault.Secrets = (vaultBaseUrl as text) =>
+shared Azure_Key_Vault.Secret = (vaultBaseUrl as text, secretName as text) =>
     let
         Source = Json.Document(
             Web.Contents(
-                vaultBaseUrl & "secrets/?api-version=7.3"
+                vaultBaseUrl,
+                [
+                    RelativePath = "secrets/" & secretName & "/?api-version=" & apiVersion
+                ]
             ),
-            65001)[value],
-        #"Converted to table" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
-        #"Expanded Column" = Table.ExpandRecordColumn(#"Converted to table", "Column1",{"id"},{"Secret URL"}),
-        #"Inserted text after delimiter" = Table.AddColumn(#"Expanded Column", "Secret name", each Text.AfterDelimiter([Secret URL], "/", { 0, RelativePosition.FromEnd}), type text),
-        #"Get secret value fx" = (SecretURL as text) => Json.Document(
-            Web.Contents(SecretURL & "?api-version=7.3")       
-        )[value],
-        #"Get secret value"  = Table.AddColumn(
-           #"Inserted text after delimiter",
-           "Secret value",
-           each #"Get secret value fx" ([Secret URL])
-        )
+                65001)[value]
     in
-        #"Get secret value";
+        Source;
 
 // Data Source Kind description
 Azure_Key_Vault = [
-    TestConnection = (dataSourcePath) => {"Azure_Key_Vault.Secrets", dataSourcePath},
+    TestConnection = (dataSourcePath) => { "Azure_Key_Vault.NavigationTable" },
     Authentication = [
         Aad = [
             AuthorizationUri = "https://login.microsoftonline.com/common/oauth2/authorize",
@@ -50,3 +42,51 @@ Azure_Key_Vault.Icons = [
     Icon16 = { Extension.Contents("Azure_Key_Vault16.png"), Extension.Contents("Azure_Key_Vault20.png"), Extension.Contents("Azure_Key_Vault24.png"), Extension.Contents("Azure_Key_Vault32.png") },
     Icon32 = { Extension.Contents("Azure_Key_Vault32.png"), Extension.Contents("Azure_Key_Vault40.png"), Extension.Contents("Azure_Key_Vault48.png"), Extension.Contents("Azure_Key_Vault64.png") }
 ];
+
+/* 
+//This is the code for a potential navigation table, but it is not currently used there are problems with exposing the Secret function
+//and the navigation table with the same authentication.
+
+[DataSource.Kind="Azure_Key_Vault", Publish="Azure_Key_Vault.Publish"]
+shared Azure_Key_Vault.NavigationTable = (vaultBaseUrl as text) as table =>
+let
+    objects = #table(
+        {"Name", "Key", "Data", "ItemKind", "ItemName", "IsLeaf"},
+        {
+            {
+                "Secret",
+                "Secret",
+                (secretName as text) => Azure_Key_Vault.Secret(vaultBaseUrl, secretName), 
+                "Function",
+                "Secret",
+                true
+            }
+        }
+    ),
+    NavTable = Table.ToNavigationTable(objects, {"Key"}, "Name", "Data", "ItemKind", "ItemName", "IsLeaf")
+in
+    NavTable;
+
+
+Table.ToNavigationTable = (
+    table as table,
+    keyColumns as list,
+    nameColumn as text,
+    dataColumn as text,
+    itemKindColumn as text,
+    itemNameColumn as text,
+    isLeafColumn as text
+) as table =>
+    let
+        tableType = Value.Type(table),
+        newTableType = Type.AddTableKey(tableType, keyColumns, true) meta 
+        [
+            NavigationTable.NameColumn = nameColumn, 
+            NavigationTable.DataColumn = dataColumn,
+            NavigationTable.ItemKindColumn = itemKindColumn, 
+            NavigationTable.IsLeafColumn = isLeafColumn
+        ],
+        navigationTable = Value.ReplaceType(table, newTableType)
+    in
+        navigationTable;
+*/
