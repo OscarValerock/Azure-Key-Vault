@@ -24,7 +24,7 @@ in
     NavTable;
 
 
-shared Azure_Key_Vault.Secret = (vaultBaseUrl as text, secretName as text) =>
+Azure_Key_Vault.Secret = (vaultBaseUrl as text, secretName as text) =>
     let
         Source = Json.Document(
             Web.Contents(
@@ -34,6 +34,13 @@ shared Azure_Key_Vault.Secret = (vaultBaseUrl as text, secretName as text) =>
                 ]
             ),
                 65001)[value]
+    in
+        Source;
+
+
+shared Azure_Key_Vault.GetSecret = (vaultBaseUrl as text, secretName as text) =>
+    let
+        Source= Azure_Key_Vault.NavigationTable(vaultBaseUrl) {[Key="Secret"]}[Data](secretName)
     in
         Source;
         
